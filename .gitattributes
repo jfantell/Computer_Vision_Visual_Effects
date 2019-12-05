@@ -6,3 +6,5 @@
 *.avi filter=lfs diff=lfs merge=lfs -text
 *.h5 filter=lfs diff=lfs merge=lfs -text
 *.h5.bk filter=lfs diff=lfs merge=lfs -text
+Homeworks/HW5/Deep_Fake_1/Raw_Data/** filter=lfs diff=lfs merge=lfs -text
+Homeworks/HW5/Deep_Fake_2/Raw_Data/** filter=lfs diff=lfs merge=lfs -text
