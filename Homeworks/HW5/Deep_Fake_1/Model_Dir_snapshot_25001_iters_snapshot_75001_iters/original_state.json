@@ -1,0 +1,67 @@
+{
+  "name": "original",
+  "sessions": {
+    "1": {
+      "timestamp": 1575195807.0218446,
+      "no_logs": false,
+      "pingpong": false,
+      "loss_names": {
+        "a": [
+          "face_loss"
+        ],
+        "b": [
+          "face_loss"
+        ]
+      },
+      "batchsize": 64,
+      "iterations": 24901,
+      "config": {
+        "learning_rate": 5e-05
+      }
+    },
+    "2": {
+      "timestamp": 1575358815.207141,
+      "no_logs": false,
+      "pingpong": false,
+      "loss_names": {
+        "a": [
+          "face_loss"
+        ],
+        "b": [
+          "face_loss"
+        ]
+      },
+      "batchsize": 64,
+      "iterations": 50001,
+      "config": {
+        "learning_rate": 5e-05
+      }
+    }
+  },
+  "lowest_avg_loss": {
+    "a": 0.021356120388954878,
+    "b": 0.02632444677874446
+  },
+  "iterations": 74902,
+  "inputs": {
+    "face_in:0": [
+      64,
+      64,
+      3
+    ]
+  },
+  "training_size": 256,
+  "config": {
+    "coverage": 68.75,
+    "mask_type": null,
+    "mask_blur": false,
+    "icnr_init": false,
+    "conv_aware_init": false,
+    "subpixel_upscaling": false,
+    "reflect_padding": false,
+    "penalized_mask_loss": true,
+    "loss_function": "mae",
+    "learning_rate": 5e-05,
+    "lowmem": false
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "name": "original",
+  "sessions": {
+    "1": {
+      "timestamp": 1574939361.0739512,
+      "no_logs": false,
+      "pingpong": false,
+      "loss_names": {
+        "a": [
+          "face_loss"
+        ],
+        "b": [
+          "face_loss"
+        ]
+      },
+      "batchsize": 64,
+      "iterations": 6401,
+      "config": {
+        "learning_rate": 5e-05
+      }
+    },
+    "2": {
+      "timestamp": 1574958954.7142434,
+      "no_logs": false,
+      "pingpong": false,
+      "loss_names": {
+        "a": [
+          "face_loss"
+        ],
+        "b": [
+          "face_loss"
+        ]
+      },
+      "batchsize": 64,
+      "iterations": 5901,
+      "config": {
+        "learning_rate": 5e-05
+      }
+    },
+    "3": {
+      "timestamp": 1574961526.28132,
+      "no_logs": false,
+      "pingpong": false,
+      "loss_names": {
+        "a": [
+          "face_loss"
+        ],
+        "b": [
+          "face_loss"
+        ]
+      },
+      "batchsize": 64,
+      "iterations": 237601,
+      "config": {
+        "learning_rate": 5e-05
+      }
+    },
+    "4": {
+      "timestamp": 1575043455.6367934,
+      "no_logs": false,
+      "pingpong": false,
+      "loss_names": {
+        "a": [
+          "face_loss"
+        ],
+        "b": [
+          "face_loss"
+        ]
+      },
+      "batchsize": 64,
+      "iterations": 100001,
+      "config": {
+        "learning_rate": 5e-05
+      }
+    },
+    "5": {
+      "timestamp": 1575090935.1495757,
+      "no_logs": false,
+      "pingpong": false,
+      "loss_names": {
+        "a": [
+          "face_loss"
+        ],
+        "b": [
+          "face_loss"
+        ]
+      },
+      "batchsize": 64,
+      "iterations": 125001,
+      "config": {
+        "learning_rate": 5e-05
+      }
+    }
+  },
+  "lowest_avg_loss": {
+    "a": 0.019968060385435818,
+    "b": 0.022696595434099437
+  },
+  "iterations": 474905,
+  "inputs": {
+    "face_in:0": [
+      64,
+      64,
+      3
+    ]
+  },
+  "training_size": 256,
+  "config": {
+    "coverage": 68.75,
+    "mask_type": null,
+    "mask_blur": false,
+    "icnr_init": false,
+    "conv_aware_init": false,
+    "subpixel_upscaling": false,
+    "reflect_padding": false,
+    "penalized_mask_loss": true,
+    "loss_function": "mae",
+    "learning_rate": 5e-05,
+    "lowmem": false
+  }
+}
