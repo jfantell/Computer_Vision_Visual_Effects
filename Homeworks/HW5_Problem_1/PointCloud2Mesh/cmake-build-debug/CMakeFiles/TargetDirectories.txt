@@ -1,0 +1,3 @@
+/Volumes/2nd Storage/Development/Computer_Vision_Visual_Effects/Homeworks/HW5_Problem_1/PointCloud2Mesh/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Volumes/2nd Storage/Development/Computer_Vision_Visual_Effects/Homeworks/HW5_Problem_1/PointCloud2Mesh/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Volumes/2nd Storage/Development/Computer_Vision_Visual_Effects/Homeworks/HW5_Problem_1/PointCloud2Mesh/cmake-build-debug/CMakeFiles/cloud2mesh.dir
