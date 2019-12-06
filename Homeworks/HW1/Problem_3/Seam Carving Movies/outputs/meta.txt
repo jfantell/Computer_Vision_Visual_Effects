@@ -1,0 +1,1 @@
+Seam Carving with Mask 300/1100
