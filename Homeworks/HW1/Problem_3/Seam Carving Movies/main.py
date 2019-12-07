@@ -1,6 +1,9 @@
 import numpy as np
 import cv2
 
+MASK_LEFT = 300
+MASK_RIGHT = 1100
+
 def build_composite(img_left,img_right,min_seam,count):
 	M = img_left.shape[0]
 	N = img_right.shape[1]
@@ -39,31 +42,36 @@ def compute_costs(left,right):
 	# Top row base case (there is no top above the top row)
 	CU[0,1:-1] = diff(shift_right_rightv[0,:],shift_left_leftv[0,:])
 
-	CU[:,0:1] = 10**10
-	CU[:,N-1:N] = 10**10
-	CR[:,0:1] = 10**10
-	CR[:,N-1:N] = 10**10
-	CL[:,0:1] = 10**10
-	CL[:,N-1:N] = 10**10
+	CU[:,0:MASK_LEFT] = 10**10
+	CU[:,MASK_RIGHT:N] = 10**10
+	CR[:,0:MASK_LEFT] = 10**10
+	CR[:,MASK_RIGHT:N] = 10**10
+	CL[:,0:MASK_LEFT] = 10**10
+	CL[:,MASK_RIGHT:N] = 10**10
 
 	# Left and right columns
 	return CL, CU, CR
 
 # Compute cumulative pixel costs
 def compute_min_costs(CL, CU, CR, count):
-	M = CL.shape[0]
-	N = CL.shape[1]
+	M = CU.shape[0]
+	N = CU.shape[1]
+
+	# Extract non-mask part of matrix
+	CL_ = CL[:,MASK_LEFT-1:MASK_RIGHT+1]
+	CU_ = CU[:,MASK_LEFT-1:MASK_RIGHT+1]
+	CR_ = CR[:,MASK_LEFT-1:MASK_RIGHT+1]
 
 	# Min cost matrix
-	MC = CU
+	MC_ = CU_
 	for i in range(1,M):
-		M_TL = MC[i-1,:-2] + CL[i,1:-1]
-		M_T = MC[i-1,1:-1] + CU[i,1:-1]
-		M_TR = MC[i-1,2:] + CR[i,1:-1]
-		MC[i,1:-1]  = np.minimum(M_TL,np.minimum(M_T,M_TR))
+		M_TL_ = MC_[i-1,:-2] + CL_[i,1:-1]
+		M_T_ = MC_[i-1,1:-1] + CU_[i,1:-1]
+		M_TR_ = MC_[i-1,2:] + CR_[i,1:-1]
+		MC_[i,1:-1]  = np.minimum(M_TL_,np.minimum(M_T_,M_TR_))
 
-	MC[:,:300] = 10**10
-	MC[:,1100:] = 10**10
+	MC = CU
+	MC[:,MASK_LEFT-1:MASK_RIGHT+1] = MC_
 	return MC
 
 # Determine indices of best seam
