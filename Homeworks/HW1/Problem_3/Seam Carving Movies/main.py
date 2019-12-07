@@ -1,24 +1,29 @@
 import numpy as np
 import cv2
 
-MASK_LEFT = 300
-MASK_RIGHT = 1100
+MASK_LEFT = 400
+MASK_RIGHT = 1200
+BLENDING_OFFSET = 0
 
 def build_composite(img_left,img_right,min_seam,count):
 	M = img_left.shape[0]
 	N = img_right.shape[1]
 	composite_img = np.zeros((M,N,3))
 	for i in range(M):
-		composite_img[i,:min_seam[i]] = img_left[i,:min_seam[i]]
-		composite_img[i,min_seam[i]:] = img_right[i,min_seam[i]:]
-		composite_img[i,min_seam[i]] = (255,0,0)
+		composite_img[i,:min_seam[i]-BLENDING_OFFSET] = img_left[i,:min_seam[i]-BLENDING_OFFSET]
+		blended_img = (0.5 * img_left[i,min_seam[i]-BLENDING_OFFSET:min_seam[i]+BLENDING_OFFSET]) + 0.5 * (img_right[i,min_seam[i]-BLENDING_OFFSET:min_seam[i]+BLENDING_OFFSET])
+		composite_img[i,min_seam[i]-BLENDING_OFFSET:min_seam[i]+BLENDING_OFFSET] = blended_img
+		composite_img[i,min_seam[i]+BLENDING_OFFSET:] = img_right[i,min_seam[i]+BLENDING_OFFSET:]
+		# composite_img[i,min_seam[i]] = (255,0,0)
 	return composite_img.astype(np.uint8)
 
 def diff(arr1,arr2):
-	return np.abs(arr2-arr1)
+	diff = np.abs(arr2-arr1)
+	diff = cv2.GaussianBlur(diff,(5,5),0)
+	return diff
 
 # Dynamic recursion to calculate pixel costs
-def compute_costs(left,right):
+def create_views(left,right):
 	M = left.shape[0]
 	N = left.shape[1]
 
@@ -40,7 +45,9 @@ def compute_costs(left,right):
 	CR[1:,1:-1] = diff(shift_right_rightv,shift_left_leftv) + diff(shift_top_leftv,shift_right_rightv)
 
 	# Top row base case (there is no top above the top row)
-	CU[0,1:-1] = diff(shift_right_rightv[0,:],shift_left_leftv[0,:])
+	# CU[0,1:-1] = diff(shift_right_rightv[0,:],shift_left_leftv[0,:])
+	tmp = diff(shift_right_rightv,shift_left_leftv)
+	CU[0,1:-1] = tmp[0,:]
 
 	CU[:,0:MASK_LEFT] = 10**10
 	CU[:,MASK_RIGHT:N] = 10**10
@@ -93,13 +100,13 @@ def find_min_seam(min_costs):
 
 def main():
 	# Get movie file paths
-	left_video = "./inputs/Left_Twin_Video.mp4"
-	right_video = "./inputs/Right_Twin_Video.mp4"
+	left_video = "./inputs/LEFT_VIDEO.mp4"
+	right_video = "./inputs/RIGHT_VIDEO.MOV"
 
 	# Open video streams
 	cap_left = cv2.VideoCapture(left_video)
 	cap_right = cv2.VideoCapture(right_video)
-	start_frame_number = 0
+	start_frame_number = 400
 	cap_left.set(cv2.CAP_PROP_POS_FRAMES, start_frame_number)
 	cap_right.set(cv2.CAP_PROP_POS_FRAMES, start_frame_number)
 	fps_left = cap_left.get(cv2.CAP_PROP_FPS)
@@ -124,8 +131,16 @@ def main():
 			# Convert to float64
 			current_left_gray = current_left_gray.astype(np.float64)
 			current_right_gray = current_right_gray.astype(np.float64)
-			(CL, CU, CR) = compute_costs(current_left_gray,current_right_gray)
+
+			cv2.imshow('DIFF',diff(current_left_gray,current_right_gray).astype(np.uint8))
+					
+			# Compute cost matrices
+			(CL, CU, CR) = create_views(current_left_gray,current_right_gray)
+			
+			# Compute minimum cost matrix according to algorithm proposed by pap[er]
 			min_costs = compute_min_costs(CL, CU, CR,count)
+			
+			# Traverse the min cost matrix in reverse
 			min_seam = find_min_seam(min_costs)
 			diff_frame = diff(current_left_gray,current_right_gray).astype(np.uint8)
 			composited_video_frame = build_composite(current_left,current_right,min_seam,count)
