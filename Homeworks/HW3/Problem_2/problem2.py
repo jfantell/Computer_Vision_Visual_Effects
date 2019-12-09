@@ -7,9 +7,9 @@ from scipy.stats.stats import pearsonr
 def get_bounds(x, y, descriptor_offset, search_offset):
     # For descriptor blocks, search_offset should be 1
     # This defines bounds of sliding window
-    top = y - int(descriptor_offset * search_offset)
+    top = y - int(descriptor_offset * search_offset) - 1
     bottom = y + int(descriptor_offset * search_offset)
-    left = x - int(descriptor_offset * search_offset)
+    left = x - int(descriptor_offset * search_offset) - 1
     right = x + int(descriptor_offset * search_offset)
     return top, bottom, left, right
 
@@ -94,7 +94,7 @@ def find_points(prev_frame, curr_frame, prev_frame_points, detector, similarity_
 
         #20 works for bed scene
         descriptor_offset = 20
-        search_offset = 1.05
+        search_offset = .5
 
         # Get bounds of block
         top, bottom, left, right = get_bounds(x_prev, y_prev, descriptor_offset, 1)
@@ -104,6 +104,7 @@ def find_points(prev_frame, curr_frame, prev_frame_points, detector, similarity_
         # Get descriptor for previous image
         prev_frame_intensities = prev_frame[top:bottom, left:right]
         prev_frame_descriptor = custom_descriptor(prev_frame_intensities)
+        print("SHAPE",prev_frame_descriptor.shape)
 
         # Define bounds of search area
         top, bottom, left, right = get_bounds(x_prev, y_prev, descriptor_offset, search_offset)
@@ -238,9 +239,11 @@ def create_text_bubble(points, frame, bubble_text_queue, bubble_text_bin):
     c_x = c_x//len(points)
     c_y = c_y//len(points)
 
+    cv2.circle(frame, (c_x,c_y), 20, (255,0,0), thickness=-1, lineType=8, shift=0)
+
     # Ellipse size
-    ellipse_vertical_offset = -400
-    ellipse_horizontal_offset = -400
+    ellipse_vertical_offset = -140
+    ellipse_horizontal_offset = -70
     ellipse_major_axis_size = 200
     ellipse_minor_axis_size = 100
 
@@ -258,6 +261,11 @@ def create_text_bubble(points, frame, bubble_text_queue, bubble_text_bin):
     elif c_y + ellipse_minor_axis_size > H:
         c_y = H - ellipse_minor_axis_size
 
+    # ###### MANUALLY OVERRIDE CENTROID LOCATION
+    # # i.e. no tracking, text stays in fixed location
+    # c_x = 400
+    # c_y = 700
+
     # Create overlay
     overlay = frame.copy()
 
@@ -268,14 +276,14 @@ def create_text_bubble(points, frame, bubble_text_queue, bubble_text_bin):
     # Change speaker bubble color based on who is speaking/texting
     speaker = bubble_text_queue[bubble_text_bin][0]
     message = bubble_text_queue[bubble_text_bin][1]
-    bubble_color = (0, 0, 255)
+    bubble_color = (255, 255, 51)
     if(speaker == "John"):
         bubble_color = (100,0,255)
     cv2.ellipse(overlay, (c_x, c_y), (ellipse_major_axis_size, ellipse_minor_axis_size), 0, 0, 360, bubble_color, -1)
-    cv2.ellipse(overlay, (c_x, c_y), (ellipse_major_axis_size, ellipse_minor_axis_size), 0, 0, 360, (100, 0, 100), 4)
+    cv2.ellipse(overlay, (c_x, c_y), (ellipse_major_axis_size, ellipse_minor_axis_size), 0, 0, 360, (0, 0, 255), 4)
 
     # https://stackoverflow.com/questions/27647424/opencv-puttext-new-line-character
-    text = "\n{}:\n{}".format(speaker,message)
+    text = "{}:\n{}".format(speaker,message)
     text_vertical_offset = int(-ellipse_minor_axis_size * .55)
     text_horizontal_offset = int(-ellipse_major_axis_size * .6)
 
@@ -322,10 +330,12 @@ def create_warp_comosite(composite_image,curr_frame_points_offset,current_frame)
 
 def main():
     # Open and save video files using unique path id
-    scene = "text_scene"
+    scene = "bed_scene"
     warp_flag = False
     bubble_flag = True
-    bubble_text_queue = [("Hayley","Hey John! Snevy needs\nour help..."),("Hayley","Evil interdimensional\nmonsters are attacking\ncampus"),("Hayley","Snevy needs us to\ndefeat their boss,\nThe GOLIATH"),("Hayley","So the monsters can\ngo back to their\nown dimension"),("John","I'm in! (For Snevy)\n"),("Hayley","Great! Okay, run\nto the VCC! Be careful\n...monsters around")]
+    # Used for text scene
+    #bubble_text_queue = [("Hayley","Evil interdimensional\nmonsters are attacking\ncampus"),("Hayley","Snevy needs us to\ndefeat their boss,\nThe GOLIATH"),("Hayley","So the monsters can\ngo back to their\nown dimension"),("John","I'm in! (For Snevy)\n"),("Hayley","Great! Okay, run\nto the VCC! Be careful\n...monsters around")]
+    bubble_text_queue = [("Snevy","A giant scary\nmonster is attacking!\nCan you help me\ndefeat it?"),("Snevy","Thank you!")]
 
     ###### TRACKING VIDEO
     # Open video stream to input movie
@@ -447,7 +457,8 @@ def main():
 
         # Create text bubble
         if bubble_flag and len(bubble_text_queue) >= 1 and len(curr_frame_points) >= 1:
-            if (frame_index % swap_text_index == 0) and (bubble_text_bin != len(bubble_text_queue) -1):
+            # if (frame_index % swap_text_index == 0) and (bubble_text_bin != len(bubble_text_queue) -1):
+            if frame_index == 240:
                 bubble_text_bin += 1
             current_frame_output_composite = create_text_bubble(curr_frame_points,
                                                                 current_frame_output_composite, bubble_text_queue, bubble_text_bin)
@@ -469,6 +480,7 @@ def main():
         prev_frame = current_frame
         prev_frame_points = curr_frame_points
         frame_index += 1
+        print(frame_index)
 
     cv2.destroyAllWindows()
     print("Finished Processing All Frames")

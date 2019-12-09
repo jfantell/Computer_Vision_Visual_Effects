@@ -106,7 +106,7 @@ def main():
 	# Open video streams
 	cap_left = cv2.VideoCapture(left_video)
 	cap_right = cv2.VideoCapture(right_video)
-	start_frame_number = 400
+	start_frame_number = 700
 	cap_left.set(cv2.CAP_PROP_POS_FRAMES, start_frame_number)
 	cap_right.set(cv2.CAP_PROP_POS_FRAMES, start_frame_number)
 	fps_left = cap_left.get(cv2.CAP_PROP_FPS)
