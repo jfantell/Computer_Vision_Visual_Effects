@@ -6,9 +6,11 @@ import glob
 def get_file_path(input_dir,filename):
 	for file in glob.glob( os.path.join(input_dir, f'{filename}.*') ):
 		if(file.endswith(('png','jpg','jpeg'))):
-			return file
+			return 1, file
+		elif(file.endswith(('.mov','.avi','.mp4'))):
+			return 2, file
 		else:
-			return None
+			return -1, None
 
 def make_dir(dir_):
 	if os.path.exists(dir_):
