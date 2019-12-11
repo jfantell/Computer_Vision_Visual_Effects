@@ -1,6 +1,5 @@
 from utilities import *
 import composite
-import composite_mixed
 import cv2
 import os
 import sys
@@ -41,7 +40,7 @@ def main():
 				fps = cap_target.get(cv2.CAP_PROP_FPS)
 				frame_width = int(cap_target.get(3))
 				frame_height = int(cap_target.get(4))
-				composite_writer = cv2.VideoWriter(f"{output_dir}/composite.MOV",cv2.VideoWriter_fourcc(*"XVID"),fps,(frame_width,frame_height))
+				composite_writer = cv2.VideoWriter(f"{output_dir}/composite.MOV",cv2.VideoWriter_fourcc(*"MJPG"),fps,(frame_width,frame_height))
 				mixed_composite_writer = cv2.VideoWriter(f"{output_dir}/mixed_composite.MOV",cv2.VideoWriter_fourcc(*"XVID"),fps,(frame_width,frame_height))
 			else:
 				T = cv2.imread(T_path)
@@ -65,19 +64,31 @@ def main():
 				M = cv2.resize(M,(0,0),fx=fx,fy=fy)
 				print("Resized Image Dimensions: S {} T {} M {}".format(S.shape,T.shape,M.shape))
 
-				# Create composite image
-				composite_image = composite.make_poisson_composite(S,T,M,output_dir)
+				source_intensities_3ch, source_coordinates = composite.solve_possion(S,T,M,output_dir,mode="Regular")
+				# source_intensities_mg_3ch, _ = composite.solve_possion(S,T,M,output_dir,mode="Mixed_Gradients")
 
-				# Create composite mixed gradients image
-				composite_image_mixed = composite_mixed.make_poisson_composite(S,T,M,output_dir)
+				composite_image = composite.blend(source_intensities_3ch,T,source_coordinates)
+				# composite_image_mixed = composite.blend(source_intensities_mg_3ch,T,source_coordinates)
 
 				cv2.imwrite(f"{output_dir}/composite_image.png",composite_image)
-				cv2.imwrite(f"{output_dir}/composite_image_mixed.png",composite_image_mixed)
+				# cv2.imwrite(f"{output_dir}/composite_image_mixed.png",composite_image_mixed)
 			elif retT == 2: # Video pipeline
+				# Poisson Intensities
+				source_intensities_3ch = None
+				# Mixed Gradient Poisson Intensities
+				source_intensities_mg_3ch = None
+				# Source pixel coordinates
+				source_coordinates = None
+				count = 0
+
 				while cap_target.isOpened():
 					ret, T = cap_target.read()
-					composite_image = composite.make_poisson_composite(S,T,M,output_dir)
-					composite_image_mixed = composite_mixed.make_poisson_composite(S,T,M,output_dir)
+					if count == 0:
+						source_intensities_3ch, source_coordinates = composite.solve_possion(S,T,M,output_dir,mode="Regular")
+						source_intensities_mg_3ch, _ = composite.solve_possion(S,T,M,output_dir,mode="Mixed_Gradients")
+
+					composite_image = composite.blend(source_intensities_3ch,T,source_coordinates)
+					composite_image_mixed = composite.blend(source_intensities_mg_3ch,T,source_coordinates)
 
 					cv2.imshow('Composite Regular',composite_image)	
 					key = cv2.waitKey(1) & 0xFF
@@ -86,6 +97,8 @@ def main():
 
 					composite_writer.write(composite_image)
 					mixed_composite_writer.write(composite_image_mixed)
+
+					count += 1
 			if retT == 2:
 				cap_target.release()
 				composite_writer.release()
