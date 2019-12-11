@@ -1,9 +1,25 @@
 import numpy as np
 import cv2
+import math
 
 MASK_LEFT = 400
-MASK_RIGHT = 1200
-BLENDING_OFFSET = 0
+MASK_RIGHT = 1000
+BLENDING_OFFSET = 15
+
+# Source: https://stackoverflow.com/questions/29106702/blend-overlapping-images-in-python
+def sigmoid(x):
+  y = np.zeros(len(x))
+  for i in range(len(x)):
+    y[i] = 1 / (1 + math.exp(-x[i]))
+  return y
+
+def sigmoid_blending(left_pixels,right_pixels):
+	print(left_pixels.shape)
+	alpha = sigmoid(np.arange(-1, 1, 1/(BLENDING_OFFSET)))
+	alpha = alpha.reshape(-1,1)
+	blended_pixels = (1 - alpha) * left_pixels + alpha * right_pixels
+	print(alpha)
+	return blended_pixels
 
 def build_composite(img_left,img_right,min_seam,count):
 	M = img_left.shape[0]
@@ -11,10 +27,10 @@ def build_composite(img_left,img_right,min_seam,count):
 	composite_img = np.zeros((M,N,3))
 	for i in range(M):
 		composite_img[i,:min_seam[i]-BLENDING_OFFSET] = img_left[i,:min_seam[i]-BLENDING_OFFSET]
-		blended_img = (0.5 * img_left[i,min_seam[i]-BLENDING_OFFSET:min_seam[i]+BLENDING_OFFSET]) + 0.5 * (img_right[i,min_seam[i]-BLENDING_OFFSET:min_seam[i]+BLENDING_OFFSET])
-		composite_img[i,min_seam[i]-BLENDING_OFFSET:min_seam[i]+BLENDING_OFFSET] = blended_img
+		blended_pixels = sigmoid_blending(img_left[i,min_seam[i]-BLENDING_OFFSET:min_seam[i]+BLENDING_OFFSET],img_right[i,min_seam[i]-BLENDING_OFFSET:min_seam[i]+BLENDING_OFFSET])
+		composite_img[i,min_seam[i]-BLENDING_OFFSET:min_seam[i]+BLENDING_OFFSET] = blended_pixels
 		composite_img[i,min_seam[i]+BLENDING_OFFSET:] = img_right[i,min_seam[i]+BLENDING_OFFSET:]
-		# composite_img[i,min_seam[i]] = (255,0,0)
+		composite_img[i,min_seam[i]] = (255,0,0)
 	return composite_img.astype(np.uint8)
 
 def diff(arr1,arr2):
@@ -106,7 +122,7 @@ def main():
 	# Open video streams
 	cap_left = cv2.VideoCapture(left_video)
 	cap_right = cv2.VideoCapture(right_video)
-	start_frame_number = 700
+	start_frame_number = 500
 	cap_left.set(cv2.CAP_PROP_POS_FRAMES, start_frame_number)
 	cap_right.set(cv2.CAP_PROP_POS_FRAMES, start_frame_number)
 	fps_left = cap_left.get(cv2.CAP_PROP_FPS)
