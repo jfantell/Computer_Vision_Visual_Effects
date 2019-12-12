@@ -1,5 +1,5 @@
 from utilities import *
-import composite
+import poisson_algorithm as pa
 import cv2
 import os
 import sys
@@ -64,14 +64,14 @@ def main():
 				M = cv2.resize(M,(0,0),fx=fx,fy=fy)
 				print("Resized Image Dimensions: S {} T {} M {}".format(S.shape,T.shape,M.shape))
 
-				source_intensities_3ch, source_coordinates = composite.solve_possion(S,T,M,output_dir,mode="Regular")
-				# source_intensities_mg_3ch, _ = composite.solve_possion(S,T,M,output_dir,mode="Mixed_Gradients")
+				source_intensities_3ch, source_coordinates = pa.solve_possion(S,T,M,output_dir,mode="Regular")
+				source_intensities_mg_3ch, _ = pa.solve_possion(S,T,M,output_dir,mode="Mixed_Gradients")
 
-				composite_image = composite.blend(source_intensities_3ch,T,source_coordinates)
-				# composite_image_mixed = composite.blend(source_intensities_mg_3ch,T,source_coordinates)
+				composite_image = pa.blend(source_intensities_3ch,T,source_coordinates)
+				composite_image_mixed = pa.blend(source_intensities_mg_3ch,T,source_coordinates)
 
 				cv2.imwrite(f"{output_dir}/composite_image.png",composite_image)
-				# cv2.imwrite(f"{output_dir}/composite_image_mixed.png",composite_image_mixed)
+				cv2.imwrite(f"{output_dir}/composite_image_mixed.png",composite_image_mixed)
 			elif retT == 2: # Video pipeline
 				# Poisson Intensities
 				source_intensities_3ch = None
@@ -84,11 +84,11 @@ def main():
 				while cap_target.isOpened():
 					ret, T = cap_target.read()
 					if count == 0:
-						source_intensities_3ch, source_coordinates = composite.solve_possion(S,T,M,output_dir,mode="Regular")
-						source_intensities_mg_3ch, _ = composite.solve_possion(S,T,M,output_dir,mode="Mixed_Gradients")
+						source_intensities_3ch, source_coordinates = pa.solve_possion(S,T,M,output_dir,mode="Regular")
+						source_intensities_mg_3ch, _ = pa.solve_possion(S,T,M,output_dir,mode="Mixed_Gradients")
 
-					composite_image = composite.blend(source_intensities_3ch,T,source_coordinates)
-					composite_image_mixed = composite.blend(source_intensities_mg_3ch,T,source_coordinates)
+					composite_image = pa.blend(source_intensities_3ch,T,source_coordinates)
+					composite_image_mixed = pa.blend(source_intensities_mg_3ch,T,source_coordinates)
 
 					cv2.imshow('Composite Regular',composite_image)	
 					key = cv2.waitKey(1) & 0xFF

@@ -29,11 +29,13 @@ def build_composite(img_left, img_right, min_seam, count):
 
 
 def diff(arr1, arr2):
+	# Create difference image
     diff = np.abs(arr2 - arr1)
-    erosion_type = cv2.MORPH_RECT
-    erosion_size = 1
-    element = cv2.getStructuringElement(erosion_type, (2 * erosion_size + 1, 2 * erosion_size + 1),
-                                       (erosion_size, erosion_size))
+    # Dilate difference image
+    kernel_type = cv2.MORPH_RECT
+    kernel_size = 1
+    element = cv2.getStructuringElement(kernel_type, (2 * kernel_size + 1, 2 * kernel_size + 1),
+                                       (kernel_size, kernel_size))
     diff = cv2.dilate(diff, element)
     return diff
 
