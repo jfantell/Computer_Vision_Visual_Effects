@@ -12,6 +12,6 @@ The following resources explain, in great detail, how all of the effects in the 
 
 This codebase contains scripts that can perform: image compositing, green screen matting, feature tracking, face morphing, and other effects.
 
-TO DO:
+### TO DO:
 
 Create in-depth documentation for each script.
