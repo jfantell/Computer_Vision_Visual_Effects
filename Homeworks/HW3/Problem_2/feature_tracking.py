@@ -78,7 +78,7 @@ def compute_similarity(x_prev, y_prev, curr_frame, curr_keypoints, descriptor_of
                 x_curr = i
                 y_curr = j
         else:
-            print("Please enter valid similarity mode")
+            print("Please enter valid similarity poisson_mode")
     return x_curr, y_curr
 
 
