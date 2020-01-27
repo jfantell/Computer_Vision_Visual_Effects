@@ -11,3 +11,7 @@ The following resources explain, in great detail, how all of the effects in the 
 * [Term Project PowerPoint Presentation](https://docs.google.com/presentation/d/1_z62Wy5zWep-6Wt12Hcdv7cnDaLh-EJ-CkkVM4iUV2U/edit?usp=sharing)
 
 This codebase contains scripts that can perform: image compositing, green screen matting, feature tracking, face morphing, and other effects.
+
+TO DO:
+
+Create in-depth documentation for each script.
