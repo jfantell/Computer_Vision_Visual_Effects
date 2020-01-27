@@ -1,4 +1,4 @@
-# Computer Vision Visual Effects
+# Computer Vision for Visual Effects
 ## By Hayley Roy Gill and John Fantell
 
 This codebase was created for the Fall 2019 [Computer Vision for Visual Effects](https://www.ecse.rpi.edu/~rjradke/cvfxcourse.html) course taught by Professor Richard Radke at Rensselaer Polytechnic Institute.
