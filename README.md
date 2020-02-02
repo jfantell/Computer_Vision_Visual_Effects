@@ -14,4 +14,4 @@ This codebase contains scripts that can perform: image compositing, green screen
 
 ### TO DO:
 
-Create in-depth documentation for each script.
+Modify directory structure so that it easy to locate specific visual effects scripts.
